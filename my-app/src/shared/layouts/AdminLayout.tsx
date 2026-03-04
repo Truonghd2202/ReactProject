@@ -1,119 +1,101 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { useAuthStore } from "@/features/auth/store";
 import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  navigationMenuTriggerStyle,
-} from "../components/ui/navigation-menu";
-import LogoutButton from "@/features/auth/pages/Logout";
+  BookOpen,
+  LayoutDashboard,
+  ScrollText,
+  Users,
+  LogOut,
+  ChevronRight,
+} from "lucide-react";
 
-function AdminLayout() {
-  const token = useAuthStore((state) => state.accessToken);
+import { cn } from "@/lib/utils";
+import { useLogout } from "@/features/auth";
+import { Button } from "@/shared/components/ui/button";
+import { Separator } from "@/shared/components/ui/separator";
+import { ThemeToggle } from "@/shared/components/common/ThemeToggle";
+
+const sidebarLinks = [
+  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
+  { to: "/admin/rituals", label: "Quản lý nghi lễ", icon: ScrollText },
+  { to: "/admin/users", label: "Quản lý người dùng", icon: Users },
+];
+
+export function AdminLayout() {
   const location = useLocation();
+  const { mutate: logout } = useLogout();
+
+  const isActive = (path: string, end?: boolean) =>
+    end ? location.pathname === path : location.pathname.startsWith(path);
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* HEADER */}
-      <header className="border-b bg-background sticky top-0 z-50">
-        <nav className="max-w-4xl mx-auto flex h-16 items-center justify-between px-6">
-          <Link
-            to="/"
-            className="font-bold text-xl tracking-tight hover:text-primary transition-colors"
-          >
-            Admin Panel
-          </Link>
+    <div className="flex min-h-screen">
+      {/* ─── Sidebar ────────────────────────────────────── */}
+      <aside className="fixed inset-y-0 left-0 z-50 w-64 border-r bg-background flex flex-col">
+        <div className="flex h-16 items-center gap-2 border-b px-6">
+          <BookOpen className="h-6 w-6 text-primary" />
+          <span className="font-bold text-lg">Admin Panel</span>
+        </div>
 
-          <div className="flex gap-4 items-center">
-            <NavigationMenu>
-              <NavigationMenuItem className="list-none">
-                <NavigationMenuLink asChild>
-                  <Link
-                    to="/"
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      location.pathname === "/" &&
-                        "bg-primary/10 text-primary font-bold underline",
-                    )}
-                  >
-                    Home
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            </NavigationMenu>
-
-            {token ? (
-              <>
-                <NavigationMenu>
-                  <NavigationMenuItem className="list-none">
-                    <NavigationMenuLink asChild>
-                      <Link
-                        to="/profile"
-                        className={cn(
-                          navigationMenuTriggerStyle(),
-                          location.pathname === "/profile" &&
-                            "bg-primary/10 text-primary font-bold underline",
-                        )}
-                      >
-                        Profile
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                </NavigationMenu>
-
-                <NavigationMenu>
-                  <NavigationMenuItem className="list-none">
-                    <NavigationMenuLink asChild>
-                      <Link
-                        to="/rituals"
-                        className={cn(
-                          navigationMenuTriggerStyle(),
-                          location.pathname === "/rituals" &&
-                            "bg-primary/10 text-primary font-bold underline",
-                        )}
-                      >
-                        Rituals
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                </NavigationMenu>
-
-                <LogoutButton />
-              </>
-            ) : (
-              <NavigationMenu>
-                <NavigationMenuItem className="list-none">
-                  <NavigationMenuLink asChild>
-                    <Link
-                      to="/login"
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        location.pathname === "/login" &&
-                          "bg-primary/10 text-primary font-bold underline",
-                      )}
-                    >
-                      Login
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              </NavigationMenu>
-            )}
-          </div>
+        <nav className="flex-1 space-y-1 p-4">
+          {sidebarLinks.map((link) => (
+            <Button
+              key={link.to}
+              variant={isActive(link.to, link.end) ? "secondary" : "ghost"}
+              className={cn(
+                "w-full justify-start gap-3",
+                isActive(link.to, link.end) && "text-primary",
+              )}
+              asChild
+            >
+              <Link to={link.to}>
+                <link.icon className="h-4 w-4" />
+                {link.label}
+                {isActive(link.to, link.end) && (
+                  <ChevronRight className="ml-auto h-4 w-4" />
+                )}
+              </Link>
+            </Button>
+          ))}
         </nav>
-      </header>
 
-      {/* CONTENT */}
-      <main className="flex-1 max-w-4xl mx-auto w-full p-6">
-        <Outlet />
-      </main>
+        <Separator />
 
-      {/* FOOTER */}
-      <footer className="border-t bg-muted/40 py-6 text-center text-sm text-muted-foreground">
-        &copy; 2024 ShopApp. All rights reserved.
-      </footer>
+        <div className="space-y-1 p-4">
+          <div className="flex items-center justify-between px-3 py-2">
+            <span className="text-xs text-muted-foreground">Giao diện</span>
+            <ThemeToggle />
+          </div>
+
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-3"
+            asChild
+          >
+            <Link to="/">← Về trang chính</Link>
+          </Button>
+
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-3 text-destructive hover:text-destructive"
+            onClick={() => logout()}
+          >
+            <LogOut className="h-4 w-4" />
+            Đăng xuất
+          </Button>
+        </div>
+      </aside>
+
+      {/* ─── Main Content ───────────────────────────────── */}
+      <div className="flex-1 pl-64">
+        <header className="sticky top-0 z-40 flex h-16 items-center border-b bg-background px-6">
+          <h1 className="text-lg font-semibold">
+            {sidebarLinks.find((l) => isActive(l.to, l.end))?.label ?? "Admin"}
+          </h1>
+        </header>
+        <main className="p-6">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }
-
-export default AdminLayout;

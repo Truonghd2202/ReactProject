@@ -1,35 +1,39 @@
+import { Link } from "react-router-dom";
+import { RegisterForm } from "../components/RegisterForm";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { Link } from "react-router-dom";
-import { RegisterForm } from "../components/RegisterForm";
 
-const RegisterPage = () => {
+export function RegisterPage() {
   return (
-    <div className="flex justify-center mt-20 px-4">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold">
-            Đăng ký tài khoản
-          </CardTitle>
-        </CardHeader>
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md space-y-6">
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Đăng ký tài khoản</CardTitle>
+            <CardDescription>
+              Tạo tài khoản để trải nghiệm đầy đủ tính năng
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RegisterForm />
+          </CardContent>
+        </Card>
 
-        <CardContent>
-          <RegisterForm />
-
-          <div className="mt-6 text-center text-sm">
-            Đã có tài khoản?{" "}
-            <Link to="/login" className="text-primary hover:underline">
-              Đăng nhập
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+        <p className="text-center text-sm text-muted-foreground">
+          Đã có tài khoản?{" "}
+          <Link
+            to="/login"
+            className="font-medium text-primary hover:underline"
+          >
+            Đăng nhập
+          </Link>
+        </p>
+      </div>
     </div>
   );
-};
-
-export default RegisterPage;
+}

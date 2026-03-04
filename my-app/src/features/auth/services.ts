@@ -1,6 +1,10 @@
+import { apiClient } from "@/lib/axios";
 import { API_ENDPOINTS } from "@/shared/constants";
-import type { LoginRequest, RegisterRequest, AuthResponse } from "./type";
-import apiClient from "@/lib/axios";
+import type {
+  LoginRequest,
+  RegisterRequest,
+  AuthResponse,
+} from "@/features/auth/types";
 
 /**
  * Auth Service - login & register endpoints.

@@ -1,37 +1,50 @@
-import { authService } from "@/features/auth/services";
-import { useAuthStore } from "@/features/auth/store";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-export const useLogoutMutation = () => {
+import { authService } from "../services";
+import { useAuthStore } from "../store";
+
+/**
+ * Hook xử lý logout – không dùng useCrud (không phải CRUD pattern).
+ *
+ * ⚠️ QUAN TRỌNG:
+ * - Xóa auth state (token + role)
+ * - Xóa TẤT CẢ cache của React Query (tránh user sau thấy data user trước)
+ * - Redirect về trang login
+ * - Dù API logout fail, client vẫn phải force logout (UX > API consistency)
+ */
+export function useLogout() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const clearTokens = useAuthStore((state) => state.clearAuth);
+  const { clearAuth } = useAuthStore();
 
-  return useMutation({
-    mutationFn: () => {
-      return authService.logout();
-    },
+  return useMutation<void, Error, void>({
+    mutationFn: () => authService.logout(),
 
     onSuccess: () => {
-      // 1. Xóa token trong store
-      clearTokens();
+      // 1. Xóa token + role trong store
+      clearAuth();
 
-      // 2. Xóa sạch mọi cache của React Query
-      // (tránh user sau thấy data user trước)
+      // 2. ⚠️ XÓA SẠCH cache React Query (privacy/security critical!)
+      // Tránh: User A logout → User B login → thấy data của User A
       queryClient.removeQueries();
 
-      // 3. Redirect
-      navigate("/login");
-      toast.info("Đã đăng xuất");
+      // 3. Redirect về login
+      navigate("/login", { replace: true });
+
+      toast.success("Đăng xuất thành công!");
     },
 
     onError: () => {
-      // Dù API lỗi, Client vẫn phải Logout để đảm bảo UX
-      clearTokens();
+      // ⚠️ DÙ API LỖI, client vẫn PHẢI logout để đảm bảo UX
+      // Lý do: User click "Logout" = User muốn logout
+      // → Không thể để họ stuck vì backend/network issues
+      clearAuth();
       queryClient.removeQueries();
-      navigate("/login");
+      navigate("/login", { replace: true });
+
+      toast.info("Đã đăng xuất (offline)");
     },
   });
-};
+}
