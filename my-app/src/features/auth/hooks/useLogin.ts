@@ -1,10 +1,11 @@
-import { authService } from "@/features/auth/services";
-import { useAuthStore } from "@/features/auth/store";
 import { useMutation } from "@tanstack/react-query";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
-import type { AuthResponse, LoginInput, LoginRequest } from "../type";
 import { jwtDecode } from "jwt-decode";
+
+import { authService } from "../services";
+import { useAuthStore } from "../store";
+import type { LoginRequest, AuthResponse } from "../types";
 import type { UserRole } from "@/shared/types";
 
 interface JwtPayload {
@@ -13,20 +14,23 @@ interface JwtPayload {
   role: UserRole;
 }
 
-export const useLogin = () => {
+/**
+ * Hook xử lý login – không dùng useCrud (không phải CRUD pattern).
+ * Decode JWT lấy role, lưu vào Zustand store, redirect dựa vào role.
+ */
+export function useLogin() {
   const navigate = useNavigate();
-  const setTokens = useAuthStore((state) => state.setAuth);
   const location = useLocation();
   const { setAuth } = useAuthStore();
 
+  // Lấy trang trước đó (nếu bị redirect từ ProtectedRoute)
   const from =
     (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
 
   return useMutation<AuthResponse, Error, LoginRequest>({
-    // mutationFn nhận vào object credentials từ Form
     mutationFn: (data) => authService.login(data),
-
     onSuccess: (res) => {
+      // Decode JWT để lấy role
       const decoded = jwtDecode<JwtPayload>(res.accessToken);
 
       setAuth({
@@ -34,9 +38,9 @@ export const useLogin = () => {
         role: decoded.role,
       });
 
-      // 2. Thông báo
       toast.success("Đăng nhập thành công!");
 
+      // Admin → /admin, User → trang trước đó hoặc /
       if (decoded.role === "admin") {
         navigate("/admin/rituals", { replace: true });
       } else {
@@ -44,4 +48,4 @@ export const useLogin = () => {
       }
     },
   });
-};
+}

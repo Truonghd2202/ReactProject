@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { LoginForm } from "../components/LoginForm";
 import {
   Card,
   CardContent,
@@ -6,36 +7,33 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { LoginForm } from "../components/LoginForm";
 
-const LoginPage = () => {
+export function LoginPage() {
   return (
-    <div className="flex items-center justify-center min-h-screen from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 px-4">
-      <Card className="w-full max-w-md p-8 shadow-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold">Welcome Back</CardTitle>
-          <CardDescription>
-            Học Axios Interceptor & Service Layer
-          </CardDescription>
-        </CardHeader>
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
+      <div className="w-full max-w-md space-y-6">
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Đăng nhập</CardTitle>
+            <CardDescription>
+              Nhập thông tin để truy cập tài khoản
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <LoginForm />
+          </CardContent>
+        </Card>
 
-        <CardContent>
-          <LoginForm />
-        </CardContent>
-
-        {/* Register Link */}
-        <div className="text-sm text-center pb-6">
-          <span className="text-muted-foreground">Chưa có tài khoản? </span>
+        <p className="text-center text-sm text-muted-foreground">
+          Chưa có tài khoản?{" "}
           <Link
             to="/register"
-            className="text-primary hover:underline font-medium"
+            className="font-medium text-primary hover:underline"
           >
             Đăng ký ngay
           </Link>
-        </div>
-      </Card>
+        </p>
+      </div>
     </div>
   );
-};
-
-export default LoginPage;
+}

@@ -1,24 +1,33 @@
 import { createBrowserRouter } from "react-router-dom";
-import RitualCatalog from "@/features/rituals/pages/RitualCatalog";
-import RitualDetail from "@/features/rituals/pages/RitualDetail";
-import LoginPage from "@/features/auth/pages/LoginPage";
-import HomePage from "@/features/landing/pages/HomePage";
-import { GuestRoute } from "@/shared/common/GusetRoute";
-import RegisterPage from "@/features/auth/pages/RegisterPage";
-import UnauthorizedPage from "@/shared/common/UnauthorizedPage";
-import { ProtectedRoute } from "@/shared/common/ProtectedRoute";
-import ProfilePage from "@/features/auth/pages/ProfilePage";
-import NotFoundPage from "@/shared/common/NotFoundPage";
 
-import DashboardPage from "@/features/dashboard/pages/DashboardPage";
-import ManageRitualList from "@/features/rituals/pages/ManageRitualList";
-import ManageRitualCreate from "@/features/rituals/pages/ManageRitualCreate";
-import ManageRitualEdit from "@/features/rituals/pages/ManageRitualEdit";
-import UserManageList from "@/features/users/pages/UserManageList";
-import AdminLayout from "@/shared/layouts/AdminLayout";
-import UserLayout from "@/shared/layouts/UserLayout";
+import { UserLayout } from "@/shared/layouts/UserLayout";
+import { AdminLayout } from "@/shared/layouts/AdminLayout";
+import { ProtectedRoute } from "@/shared/components/common/ProtectedRoute";
+import { GuestRoute } from "@/shared/components/common/GuestRoute";
+import { UnauthorizedPage, NotFoundPage } from "@/shared/pages";
 
+// ─── Feature pages ───────────────────────────────────────
+import { HomePage } from "@/features/landing";
+import { LoginPage, RegisterPage } from "@/features/auth";
+import {
+  RitualCatalog,
+  RitualDetail,
+  ManageRitualList,
+  ManageRitualCreate,
+  ManageRitualEdit,
+} from "@/features/rituals";
+import { ProfilePage, UserManagementPage } from "@/features/users";
+import { DashboardPage } from "@/features/dashboard";
+
+/**
+ * React Router v6 config – createBrowserRouter (Data API).
+ *
+ * Public routes: /, /rituals, /rituals/:id, /login, /register
+ * Protected (user/admin): /profile
+ * Protected (admin only): /admin/*
+ */
 export const router = createBrowserRouter([
+  // ─── Public layout (User) ───────────────────────────
   {
     element: <UserLayout />,
     children: [
@@ -42,6 +51,8 @@ export const router = createBrowserRouter([
         ),
       },
       { path: "unauthorized", element: <UnauthorizedPage /> },
+
+      // Protected: cần đăng nhập
       {
         path: "profile",
         element: (
@@ -50,11 +61,13 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+
+      // 404 fallback cho user layout
       { path: "*", element: <NotFoundPage /> },
     ],
   },
-  //Admin
 
+  // ─── Admin layout (Protected, admin only) ───────────
   {
     path: "admin",
     element: (
@@ -67,7 +80,7 @@ export const router = createBrowserRouter([
       { path: "rituals", element: <ManageRitualList /> },
       { path: "rituals/create", element: <ManageRitualCreate /> },
       { path: "rituals/:id/edit", element: <ManageRitualEdit /> },
-      { path: "users", element: <UserManageList /> },
+      { path: "users", element: <UserManagementPage /> },
     ],
   },
 ]);

@@ -1,119 +1,89 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { useAuthStore } from "@/features/auth/store";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  navigationMenuTriggerStyle,
-} from "../components/ui/navigation-menu";
-import LogoutButton from "@/features/auth/pages/Logout";
+import { Link, Outlet } from "react-router-dom";
+import { LogOut, User, BookOpen } from "lucide-react";
 
-function AdminLayout() {
-  const token = useAuthStore((state) => state.accessToken);
-  const location = useLocation();
+import { useAuthStore, useLogout } from "@/features/auth";
+import { Button } from "@/shared/components/ui/button";
+import { Separator } from "@/shared/components/ui/separator";
+import { ThemeToggle } from "@/shared/components/common/ThemeToggle";
+
+export function UserLayout() {
+  const { accessToken, role } = useAuthStore();
+  const { mutate: logout } = useLogout();
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* HEADER */}
-      <header className="border-b bg-background sticky top-0 z-50">
-        <nav className="max-w-4xl mx-auto flex h-16 items-center justify-between px-6">
+    <div className="min-h-screen flex flex-col">
+      {/* ─── Header ─────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link
             to="/"
-            className="font-bold text-xl tracking-tight hover:text-primary transition-colors"
+            className="flex items-center gap-2 font-bold text-xl text-primary"
           >
-            Admin Panel
+            <BookOpen className="h-6 w-6" />
+            Thích Cúng Kiếng
           </Link>
 
-          <div className="flex gap-4 items-center">
-            <NavigationMenu>
-              <NavigationMenuItem className="list-none">
-                <NavigationMenuLink asChild>
-                  <Link
-                    to="/"
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      location.pathname === "/" &&
-                        "bg-primary/10 text-primary font-bold underline",
-                    )}
-                  >
-                    Home
+          <nav className="flex items-center gap-4">
+            <Link
+              to="/"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Trang chủ
+            </Link>
+            <Link
+              to="/rituals"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Nghi lễ
+            </Link>
+
+            <Separator orientation="vertical" className="h-6" />
+
+            <ThemeToggle />
+
+            {accessToken ? (
+              <div className="flex items-center gap-2">
+                {role === "admin" && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/admin/rituals">Quản trị</Link>
+                  </Button>
+                )}
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/profile">
+                    <User className="mr-1.5 h-4 w-4" />
+                    Tài khoản
                   </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            </NavigationMenu>
-
-            {token ? (
-              <>
-                <NavigationMenu>
-                  <NavigationMenuItem className="list-none">
-                    <NavigationMenuLink asChild>
-                      <Link
-                        to="/profile"
-                        className={cn(
-                          navigationMenuTriggerStyle(),
-                          location.pathname === "/profile" &&
-                            "bg-primary/10 text-primary font-bold underline",
-                        )}
-                      >
-                        Profile
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                </NavigationMenu>
-
-                <NavigationMenu>
-                  <NavigationMenuItem className="list-none">
-                    <NavigationMenuLink asChild>
-                      <Link
-                        to="/rituals"
-                        className={cn(
-                          navigationMenuTriggerStyle(),
-                          location.pathname === "/rituals" &&
-                            "bg-primary/10 text-primary font-bold underline",
-                        )}
-                      >
-                        Rituals
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                </NavigationMenu>
-
-                <LogoutButton />
-              </>
+                </Button>
+                <Button variant="secondary" size="sm" onClick={() => logout()}>
+                  <LogOut className="mr-1.5 h-4 w-4" />
+                  Đăng xuất
+                </Button>
+              </div>
             ) : (
-              <NavigationMenu>
-                <NavigationMenuItem className="list-none">
-                  <NavigationMenuLink asChild>
-                    <Link
-                      to="/login"
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        location.pathname === "/login" &&
-                          "bg-primary/10 text-primary font-bold underline",
-                      )}
-                    >
-                      Login
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              </NavigationMenu>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/login">Đăng nhập</Link>
+                </Button>
+                <Button size="sm" asChild>
+                  <Link to="/register">Đăng ký</Link>
+                </Button>
+              </div>
             )}
-          </div>
-        </nav>
+          </nav>
+        </div>
       </header>
 
-      {/* CONTENT */}
-      <main className="flex-1 max-w-4xl mx-auto w-full p-6">
+      {/* ─── Main Content ───────────────────────────────── */}
+      <main className="flex-1">
         <Outlet />
       </main>
 
-      {/* FOOTER */}
-      <footer className="border-t bg-muted/40 py-6 text-center text-sm text-muted-foreground">
-        &copy; 2024 ShopApp. All rights reserved.
+      {/* ─── Footer ─────────────────────────────────────── */}
+      <footer className="border-t bg-muted/40">
+        <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
+          © 2026 Thích Cúng Kiếng. Dự án học tập ReactJS.
+        </div>
       </footer>
     </div>
   );
 }
-
-export default AdminLayout;

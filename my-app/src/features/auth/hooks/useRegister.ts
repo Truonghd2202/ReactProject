@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { authService } from "../services";
-import type { AuthResponse, RegisterRequest } from "../type";
+import type { RegisterRequest, AuthResponse } from "../types";
 
 /**
  * Hook xử lý đăng ký – không dùng useCrud (không phải CRUD pattern).
