@@ -29,7 +29,6 @@ const difficultyVariant: Record<
 export function RitualDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: ritual, isLoading, isError } = useRitualDetail(id!);
-  console.log(ritual);
 
   if (isLoading) {
     return <LoadingSpinner className="py-20" size="lg" />;

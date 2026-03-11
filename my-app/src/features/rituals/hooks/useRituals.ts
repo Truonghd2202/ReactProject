@@ -35,7 +35,8 @@ export function useRituals() {
   const query = useQuery({
     queryKey: [...QUERY_KEYS.RITUALS, filters],
     queryFn: () => ritualService.getAll(filters),
-    placeholderData: (prev) => prev, // Keep previous data while fetching
+    // Giữ data cũ khi filters thay đổi để tránh loading state giữa chừng
+    placeholderData: (prev) => prev,
   });
 
   return {

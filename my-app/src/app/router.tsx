@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import { UserLayout } from "@/shared/layouts/UserLayout";
-import { AdminLayout } from "@/shared/layouts/AdminLayout";
+const AdminLayout = lazy(() => import("@/shared/layouts/AdminLayout"));
 import { ProtectedRoute } from "@/shared/components/common/ProtectedRoute";
 import { GuestRoute } from "@/shared/components/common/GuestRoute";
 import { UnauthorizedPage, NotFoundPage } from "@/shared/pages";
@@ -9,16 +9,31 @@ import { UnauthorizedPage, NotFoundPage } from "@/shared/pages";
 // ─── Feature pages ───────────────────────────────────────
 import { HomePage } from "@/features/landing";
 import { LoginPage, RegisterPage } from "@/features/auth";
-import {
-  RitualCatalog,
-  RitualDetail,
-  ManageRitualList,
-  ManageRitualCreate,
-  ManageRitualEdit,
-} from "@/features/rituals";
-import { ProfilePage, UserManagementPage } from "@/features/users";
-import { DashboardPage } from "@/features/dashboard";
+import { RitualCatalog, RitualDetail } from "@/features/rituals";
+import { ProfilePage } from "@/features/users";
+const DashboardPage = lazy(
+  () => import("@/features/dashboard/pages/DashboardPage"),
+);
+const ManageRitualList = lazy(
+  () => import("@/features/rituals/pages/ManageRitualList"),
+);
+const ManageRitualCreate = lazy(
+  () => import("@/features/rituals/pages/ManageRitualCreate"),
+);
+const ManageRitualEdit = lazy(
+  () => import("@/features/rituals/pages/ManageRitualEdit"),
+);
+const UserManagementPage = lazy(
+  () => import("@/features/users/pages/UserManagementPage"),
+);
+import { lazy, Suspense, type ReactNode } from "react";
+import { LoadingSpinner } from "@/shared/components/common";
 
+const withSuspense = (children: ReactNode) => (
+  <Suspense fallback={<LoadingSpinner className="py-20" size="lg" />}>
+    {children}
+  </Suspense>
+);
 /**
  * React Router v6 config – createBrowserRouter (Data API).
  *
@@ -72,15 +87,15 @@ export const router = createBrowserRouter([
     path: "admin",
     element: (
       <ProtectedRoute allowedRoles={["admin"]}>
-        <AdminLayout />
+        {withSuspense(<AdminLayout />)}
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: <DashboardPage /> },
-      { path: "rituals", element: <ManageRitualList /> },
-      { path: "rituals/create", element: <ManageRitualCreate /> },
-      { path: "rituals/:id/edit", element: <ManageRitualEdit /> },
-      { path: "users", element: <UserManagementPage /> },
+      { index: true, element: withSuspense(<DashboardPage />) },
+      { path: "rituals", element: withSuspense(<ManageRitualList />) },
+      { path: "rituals/create", element: withSuspense(<ManageRitualCreate />) },
+      { path: "rituals/:id/edit", element: withSuspense(<ManageRitualEdit />) },
+      { path: "users", element: withSuspense(<UserManagementPage />) },
     ],
   },
 ]);
